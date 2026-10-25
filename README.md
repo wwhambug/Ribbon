@@ -63,3 +63,17 @@ Bluetooth가 WSL에 전달된 동안 임시 광고 검사:
 ```
 
 임시 광고는 등록·광고 경로만 검증하며 앱의 등록 요청에는 응답하지 않는다. 실제 페어링 시에는 휴대폰 Muse 앱, 유효한 SDK 토큰, 공식 pairing 흐름이 필요하다. SDK 토큰만으로 크레딧 차감 방식이나 클라우드 이전 성공이 보장되지는 않는다.
+
+## 실제 계정 연결 성공 (2026-10-25)
+
+휴대폰 Muse 앱과의 페어링에서 `auth_ok`, `setup complete`, `Paired.` 확인.
+이후 저장된 장치 인증 정보를 사용한 별도 인터넷 연결 시험에서 다음을 확인했다.
+
+- VM 조회 성공.
+- 암호화 Noise 세션 연결 성공.
+- `link.register` 서버 접수 성공: `registered with the Muse`.
+- `MUSE_CONNECTION_REGISTERED=True`.
+
+`scripts/Test-MuseConnection.py`는 명령을 전혀 등록하지 않고 채팅도 보내지 않는 연결 전용 검사다. 이 검사에서는 계정 크레딧 차감 방식, 답변 구독, 클라우드 이전을 검증하지 않았다. 페어링 완료 후 Bluetooth 장치는 Windows로 반환했다.
+
+SDK 토큰은 `scripts/Start-Pairing.ps1`의 숨김 입력으로 받아 Linux 전용 상태 디렉터리에 저장한다. 이 도우미는 현재 로컬 작업 경로와 `Ribbon-Ubuntu` 배포 이름에 맞춘 실험용 스크립트다.
