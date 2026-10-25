@@ -33,3 +33,33 @@ Bluetooth 이어폰 연결 기능과 가젯 서버 기능은 다르다. 이 결�
 - [Muse SDK 토큰 이용 범위](https://gadgets.muse.ai/sdk-terms)
 
 SDK 토큰, pairing.json, 인증 정보는 저장소에 올리지 않는다.
+
+## WSL 우회 경로: 실측 성공 (2026-10-25)
+
+동일한 Intel Bluetooth 장치를 usbipd-win으로 Ubuntu에 전달한 경우 Linux에서는 central/peripheral 역할 및 advertising이 지원됐다.
+
+- WSL 3.0.3 / kernel 6.18.54.1 / Ubuntu 24.04, 배포 이름 `Ribbon-Ubuntu`.
+- usbipd-win 5.3.0 설치 및 Intel USB 장치 전달 성공.
+- `hci0` 인식, BlueZ peripheral 역할 및 광고 인스턴스 지원 확인.
+- 공식 SDK `BleServer`로 Muse GATT 서비스 등록 성공, 12초 임시 광고 성공.
+- BlueZ의 `ActiveInstances > 0` 확인: `ACTIVE_ADVERTISEMENT_VERIFIED=True`.
+- 공식 SDK 페어링 암호화·BLE setup·응답 추적 테스트 98개 통과.
+- 검사 후 장치를 Windows로 돌려놓음. 휴대폰 검색·실제 Muse 계정 페어링은 아직 미실시.
+
+이는 Windows의 미지원 표시가 이 장치의 모든 환경에서의 불가능을 뜻하지 않음을 실측으로 확인한 것이다. 현재 PC에서는 ESP32 없이 기존 Bluetooth를 사용해 다음 페어링 시험을 진행할 수 있다.
+
+Linux 도구 준비(새 환경에서 root로 실행):
+
+```bash
+bash scripts/Prepare-Linux.sh
+```
+
+설치되는 SDK 커밋은 위의 고정 버전이다. 이 스크립트는 Muse 명령 실행 서비스를 활성화하거나 계정 페어링을 수행하지 않는다.
+
+Bluetooth가 WSL에 전달된 동안 임시 광고 검사:
+
+```bash
+/opt/ribbon/venv/bin/python scripts/Test-LinuxAdvertisement.py
+```
+
+임시 광고는 등록·광고 경로만 검증하며 앱의 등록 요청에는 응답하지 않는다. 실제 페어링 시에는 휴대폰 Muse 앱, 유효한 SDK 토큰, 공식 pairing 흐름이 필요하다. SDK 토큰만으로 크레딧 차감 방식이나 클라우드 이전 성공이 보장되지는 않는다.
