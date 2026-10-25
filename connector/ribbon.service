@@ -1,0 +1,20 @@
+[Unit]
+Description=Ribbon personal Muse connector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ribbon/source
+Environment=MUSEGADGET_STATE_DIR=/opt/ribbon/state
+ExecStart=/opt/ribbon/venv/bin/python -u /opt/ribbon/source/connector/ribbon_connector.py
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/ribbon/state
+
+[Install]
+WantedBy=multi-user.target
