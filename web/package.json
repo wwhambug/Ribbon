@@ -1,0 +1,13 @@
+{
+  "name": "ribbon-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "validate": "node scripts/validate-artifact.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "dev": "node scripts/dev.mjs",
+    "db:generate": "drizzle-kit generate"
+  },
+  "devDependencies": { "drizzle-kit": "^0.31.0", "drizzle-orm": "^0.44.0" }
+}
