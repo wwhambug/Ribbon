@@ -25,5 +25,22 @@ $operation = [Windows.Devices.Bluetooth.GenericAttributeProfile.GattServiceProvi
 $task = $asTask.MakeGenericMethod([Windows.Devices.Bluetooth.GenericAttributeProfile.GattServiceProviderResult]).Invoke($null,@($operation))
 if (-not $task.Wait(15000)) { throw 'GATT service query timed out.' }
 [pscustomobject]@{ GattServiceError=$task.Result.Error.ToString() } | ConvertTo-Json
-# No advertising is started and no pairing credentials are requested.
-if (-not $adapter.IsPeripheralRoleSupported -or $task.Result.Error.ToString() -ne 'Success') { exit 3 }
+if ($task.Result.Error.ToString() -ne 'Success') { exit 3 }
+$null = [Windows.Devices.Bluetooth.GenericAttributeProfile.GattServiceProviderAdvertisingParameters,Windows.Devices.Bluetooth,ContentType=WindowsRuntime]
+$provider = $task.Result.ServiceProvider
+$parameters = New-Object Windows.Devices.Bluetooth.GenericAttributeProfile.GattServiceProviderAdvertisingParameters
+$parameters.IsConnectable = $true
+$parameters.IsDiscoverable = $true
+try {
+    $provider.StartAdvertising($parameters)
+    Start-Sleep -Seconds 3
+    $status = $provider.AdvertisementStatus.ToString()
+    [pscustomobject]@{ AdvertisementStatus=$status } | ConvertTo-Json
+} catch {
+    $status = 'Failed'
+    [pscustomobject]@{ AdvertisementStatus=$status; Error=$_.Exception.Message } | ConvertTo-Json
+} finally {
+    try { $provider.StopAdvertising() } catch { }
+}
+# This temporary service has no pairing handler and requests no credentials.
+if ($status -ne 'Started') { exit 3 }
