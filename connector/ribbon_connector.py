@@ -138,7 +138,7 @@ async def run_job(bridge, job):
         if not ack.get('ok') or not isinstance(ack.get('response'), dict):
             raise RuntimeError('Muse did not acknowledge the request.')
         await publish(turn.acknowledge(ack['response']))
-        await bridge.event(job, 'ack')
+        await bridge.event(job, 'ack', {'response': ack['response']})
         subscription = asyncio.create_task(receive())
         ready = asyncio.create_task(session.chat_subscribed.wait())
         try:
